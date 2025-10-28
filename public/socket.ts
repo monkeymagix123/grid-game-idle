@@ -6,7 +6,6 @@ import { startGameLoop } from "./game";
 import { updateURL } from "./url";
 import { RoomData, Lobby, PlayerData } from "../shared/types";
 import { Player } from "../shared/player";
-import { PlayerC } from "./player";
 
 export function initSocket(): void {
 	session.socket.on("menu/lobbies-list", (lobbies: Lobby[]) => {
@@ -54,7 +53,7 @@ export function initSocket(): void {
 
 // Method to update which players are in lobby/playerList
 function updatePlayersInLobby(updatedPlayers: Player[]): void {
-	state.players = updatedPlayers.map(p => PlayerC.copyData(p));
+	state.players = updatedPlayers;
 	
 	const currentPlayer = state.players.find(p => p.id === session.socket.id);
 	session.currentPlayer = currentPlayer;

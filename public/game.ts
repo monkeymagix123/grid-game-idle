@@ -1,5 +1,4 @@
 import { session } from "./session";
-import { renderGame, resizeCanvas } from "./canvas";   
 import { config } from "../shared/config";
 import { settings } from "./settings";
 import { Vec2 } from "../shared/v2";
@@ -12,10 +11,9 @@ export function initGame(): void {
 	const canvas = document.getElementById("game-canvas") as HTMLCanvasElement;
 	if (!canvas) return;
 
-	resizeCanvas();
 	setupGameControls();
 	
-	window.addEventListener("resize", resizeCanvas);
+	// window.addEventListener("resize", resizeCanvas);
 }
 
 function setupGameControls(): void {
@@ -29,32 +27,20 @@ function setupGameControls(): void {
 		session.clientInput.keys[e.key.toLowerCase()] = false;
 	});
 
-	document.addEventListener("click", (e: MouseEvent) => {
-		if (!session.canvas) return;
+	// document.addEventListener("click", (e: MouseEvent) => {
+	// 	if (!session.canvas) return;
 		
-		// Converts raw mouse coordinates to game coordinates
-		session.saveMouseCoords(e.clientX, e.clientY);
+	// 	// Converts raw mouse coordinates to game coordinates
+	// 	// session.saveMouseCoords(e.clientX, e.clientY);
 
-		// Attempt to dash
-		if (session.currentPlayer) {
-			session.currentPlayer.attemptDash(session.mousePos);
-		}
 
-		session.clientInput.mouseClick = true;
-		session.clientInput.mousePos = session.mousePos;
+	// 	session.clientInput.mouseClick = true;
+	// 	session.clientInput.mousePos = session.mousePos;
 
-		// session.socket.emit("game/player-move", {
-		// 	pos: session.currentPlayer?.pos,
-		// });
-	});
-
-	document.addEventListener("mousemove", (e: MouseEvent) => {
-		if (performance.now() - lastDrawTime < 20) return; 
-		lastDrawTime = performance.now();
-
-		// Converts raw mouse coordinates to game coordinates
-		session.saveMouseCoords(e.clientX, e.clientY);
-	});
+	// 	// session.socket.emit("game/player-move", {
+	// 	// 	pos: session.currentPlayer?.pos,
+	// 	// });
+	// });
 }
 
 // The main game loop function using requestAnimationFrame
@@ -63,7 +49,6 @@ function gameLoop(currentTime: number): void {
 	lastTime = currentTime;
 
 	updateGame(dt);
-	renderGame();
  
 	// Request the next frame
 	session.gameLoop = requestAnimationFrame(gameLoop);
@@ -89,29 +74,24 @@ function updateGame(dt: number): void {
 	if (!session.currentPlayer || !session.canvas) return;
 
 	let moved = false;
-	const speedPerSecond = config.speedPerSecond;
+	// const speedPerSecond = config.speedPerSecond;
 
-	if (session.keys["w"] || session.keys["arrowup"]) {
-		session.currentPlayer.moveUp(speedPerSecond * dt);
-		moved = true;
-	}
-	if (session.keys["s"] || session.keys["arrowdown"]) {
-		session.currentPlayer.moveDown(speedPerSecond * dt);
-		moved = true;
-	}
-	if (session.keys["a"] || session.keys["arrowleft"]) {
-		session.currentPlayer.moveLeft(speedPerSecond * dt);
-		moved = true;
-	}
-	if (session.keys["d"] || session.keys["arrowright"]) {
-		session.currentPlayer.moveRight(speedPerSecond * dt);
-		moved = true;
-	}
-
-	// Decrement cooldown based on delta time in seconds
-	session.currentPlayer.decrementCooldown(dt);
-
-	session.currentPlayer.interpolate();
+	// if (session.keys["w"] || session.keys["arrowup"]) {
+	// 	session.currentPlayer.moveUp(speedPerSecond * dt);
+	// 	moved = true;
+	// }
+	// if (session.keys["s"] || session.keys["arrowdown"]) {
+	// 	session.currentPlayer.moveDown(speedPerSecond * dt);
+	// 	moved = true;
+	// }
+	// if (session.keys["a"] || session.keys["arrowleft"]) {
+	// 	session.currentPlayer.moveLeft(speedPerSecond * dt);
+	// 	moved = true;
+	// }
+	// if (session.keys["d"] || session.keys["arrowright"]) {
+	// 	session.currentPlayer.moveRight(speedPerSecond * dt);
+	// 	moved = true;
+	// }
 
 	// if moving position or trying to dash, send data to server
 	if (moved || session.clientInput.mouseClick) {
