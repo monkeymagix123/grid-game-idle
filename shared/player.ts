@@ -1,5 +1,5 @@
 import { config } from "./config";
-import { clampPos, clampPosV, intersectCircleLine } from "./math";
+import { clamp } from "./math";
 
 import { ClientInput, PlayerData } from "./types";
 import { v2, Vec2 } from "./v2";
@@ -12,12 +12,7 @@ export abstract class Player {
 
     pos: Vec2;
 
-    startDash: boolean = false;
-    dashPos: Vec2;
-    dashCooldown: number = 0;
-
-    maxHealth: number;
-    health: number;
+    // resourcesManager: ResourceManager;
 
     constructor(id: string, team: string, x: number, y: number, name: string = "Player", ready: boolean = false) {
         this.id = id;
@@ -26,10 +21,6 @@ export abstract class Player {
         this.ready = ready;
 
         this.pos = new Vec2(x, y);
-        this.dashPos = new Vec2();
-
-        this.maxHealth = config.maxHealth;
-        this.health = this.maxHealth;
     }
 
     /**
@@ -37,97 +28,28 @@ export abstract class Player {
      * @param dt time to update (in seconds)
      */
     update(dt: number): void {
-        this.decrementCooldown(dt);
+        // this.decrementCooldown(dt);
     }
 
-    moveLeft(distance: number): void {
-        this.pos.x = clampPos(this.pos.x - distance, this.pos.y).x;
-    }
+    // doDamage(amount: number, target: Player): void {
+    //     target.takeDamage(amount);
+    // }
 
-    moveRight(distance: number): void {
-        this.pos.x = clampPos(this.pos.x + distance, this.pos.y).x;
-    }
-
-    moveUp(distance: number): void {
-        this.pos.y = clampPos(this.pos.x, this.pos.y - distance).y;
-    }
-
-    moveDown(distance: number): void {
-        this.pos.y = clampPos(this.pos.x, this.pos.y + distance).y;
-    }
-
-    doDash(v: Vec2): void {
-        this.startDash = true;
-
-        // will dash towards (x, y)
-        this.dashPos = v;
-
-        // dash & arrow calculation
-        let diffPos = v2.sub(v, this.pos);
-
-        // let length = Math.sqrt(dx * dx + dy * dy);
-        let length = v2.length(diffPos);
-
-        // Assuming a fixed dash distance of 100 units (original code logic)
-        const dashDistance = config.dashDistance;
-        // Normalize and scale the dash vector
-        let dashVec = v2.mul(diffPos, dashDistance / length);
-
-        // do a dash
-        this.dashPos = clampPosV(v2.add(this.pos, dashVec));
-
-        // do damage to other players & objects
-        this.dmgOtherPlayers(config.dashDamage);
-
-        // move to target point
-        this.pos = this.dashPos;
-
-        // 1 sec dash cooldown
-        this.startDashCooldown();
-
-        // will change later
-        this.startDash = false;
-    }
-
-    attemptDash(v: Vec2): boolean {
-        if (this.dashCooldown > 0) {
-            return false; // Dash is on cooldown
-        }
-
-        this.doDash(v);
-
-        return true;
-    }
-
-    abstract dmgOtherPlayers(dmg: number): void;
-
-    doDamage(amount: number, target: Player): void {
-        target.takeDamage(amount);
-    }
-
-    takeDamage(amount: number): void {
-        if (this.startDash) return; // Invulnerable during dash
+    // takeDamage(amount: number): void {
+    //     if (this.startDash) return; // Invulnerable during dash
         
-        this.health -= amount;
-        if (this.health < 0) this.health = 0;
-    }
+    //     this.health -= amount;
+    //     if (this.health < 0) this.health = 0;
+    // }
 
-    heal(amount: number): void {
-        this.health += amount;
-        if (this.health > 100) this.health = 100;
-    }
+    // heal(amount: number): void {
+    //     this.health += amount;
+    //     if (this.health > 100) this.health = 100;
+    // }
 
-    isAlive(): boolean {
-        return this.health > 0;
-    }
-
-    startDashCooldown(): void {
-        this.dashCooldown = config.dashCooldown;
-    }
-
-    decrementCooldown(dt: number): void {
-        this.dashCooldown -= dt;
-    }
+    // isAlive(): boolean {
+    //     return this.health > 0;
+    // }
 
 
     // data-related stuff
@@ -139,10 +61,6 @@ export abstract class Player {
         return {
             id: this.id,
             pos: this.pos,
-            dashPos: this.dashPos,
-
-            health: this.health,
-            maxHealth: this.maxHealth,
         };
     }
 
@@ -161,15 +79,15 @@ export abstract class Player {
     doInput(input: ClientInput) {
         const dt = input.interval;
 
-        // Update position
-		if (input.keys["arrowdown"] || input.keys["s"]) this.moveDown(dt * config.speedPerSecond);
-		if (input.keys["arrowup"] || input.keys["w"]) this.moveUp(dt * config.speedPerSecond);
-		if (input.keys["arrowleft"] || input.keys["a"]) this.moveLeft(dt * config.speedPerSecond);
-		if (input.keys["arrowright"] || input.keys["d"]) this.moveRight(dt * config.speedPerSecond);
+        // // Update position
+		// if (input.keys["arrowdown"] || input.keys["s"]) this.moveDown(dt * config.speedPerSecond);
+		// if (input.keys["arrowup"] || input.keys["w"]) this.moveUp(dt * config.speedPerSecond);
+		// if (input.keys["arrowleft"] || input.keys["a"]) this.moveLeft(dt * config.speedPerSecond);
+		// if (input.keys["arrowright"] || input.keys["d"]) this.moveRight(dt * config.speedPerSecond);
 
-        // Dash calculations
-		if (input.mouseClick) {
-			this.attemptDash(input.mousePos);
-		}
+        // // Dash calculations
+		// if (input.mouseClick) {
+		// 	this.attemptDash(input.mousePos);
+		// }
     }
 }
